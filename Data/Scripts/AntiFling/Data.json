@@ -1,5 +1,5 @@
 {
-  "nome": "AntFling",
-  "descricao": "Script avançado para evitar ser atirado por outros jogadores no mapa. Essencial para manter a estabilidade no servidor.",
+  "nome": "AntiFling",
+  "descricao": "It protects your client from being launched by other scripters on the server.",
   "banner": "https://i.imgur.com/aAnG2bt.png"
 }
