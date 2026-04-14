@@ -1,0 +1,191 @@
+-- windowsv34 UI Lib
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+local Lib = { Elements = {} }
+local TInfo = TweenInfo.new(0.15, Enum.EasingStyle.Quad)
+
+local Colors = {
+    Main = Color3.fromRGB(251, 181, 84),
+    White = Color3.fromRGB(255, 255, 255),
+    Red = Color3.fromRGB(244, 67, 54),
+    ScrollBG = Color3.fromRGB(210, 210, 210),
+    InputBG = Color3.fromRGB(242, 203, 137),
+    Green = Color3.fromRGB(144, 255, 107)
+}
+
+function Lib:Window(title)
+    local sg = Instance.new("ScreenGui", game:GetService("CoreGui") or game:GetService("Players").LocalPlayer.PlayerGui)
+    sg.Name = "windowsv34"
+
+    local main = Instance.new("Frame", sg)
+    main.Size, main.Position = UDim2.new(0, 220, 0, 200), UDim2.new(0.5, -110, 0.5, -100)
+    main.BackgroundColor3, main.BorderSizePixel = Colors.Main, 0
+
+    local header = Instance.new("Frame", main)
+    header.Size, header.BackgroundColor3, header.BorderSizePixel = UDim2.new(1, 0, 0, 22), Colors.Main, 0
+
+    local t = Instance.new("TextLabel", header)
+    t.Size, t.Position = UDim2.new(1, -45, 1, 0), UDim2.new(0, 5, 0, 0)
+    t.BackgroundTransparency, t.Text, t.TextColor3 = 1, title, Colors.White
+    t.Font, t.TextSize, t.TextXAlignment = Enum.Font.SourceSansBold, 14, Enum.TextXAlignment.Left
+
+    local close = Instance.new("TextButton", header)
+    close.Size, close.Position = UDim2.new(0, 22, 0, 22), UDim2.new(1, -22, 0, 0)
+    close.BackgroundColor3, close.Text, close.TextColor3 = Colors.Red, "X", Colors.White
+    close.BorderSizePixel = 0
+
+    local body = Instance.new("Frame", main)
+    body.Size, body.Position = UDim2.new(1, -6, 1, -28), UDim2.new(0, 3, 0, 25)
+    body.BackgroundColor3, body.BorderSizePixel = Colors.White, 0
+    body.ClipsDescendants = true
+
+    local scroll = Instance.new("ScrollingFrame", body)
+    scroll.Size, scroll.Position = UDim2.new(1, -18, 1, -4), UDim2.new(0, 2, 0, 2)
+    scroll.BackgroundTransparency, scroll.BorderSizePixel, scroll.ScrollBarThickness = 1, 0, 0
+
+    local layout = Instance.new("UIListLayout", scroll)
+    layout.Padding, layout.SortOrder = UDim.new(0, 3), Enum.SortOrder.LayoutOrder
+
+    local sTrack = Instance.new("Frame", body)
+    sTrack.Size, sTrack.Position = UDim2.new(0, 14, 1, -4), UDim2.new(1, -16, 0, 2)
+    sTrack.BackgroundColor3, sTrack.BorderSizePixel = Colors.ScrollBG, 0
+
+    local sUp = Instance.new("TextButton", sTrack)
+    sUp.Size, sUp.BackgroundColor3, sUp.Text = UDim2.new(1, 0, 0, 14), Colors.Main, "^"
+    sUp.BorderSizePixel, sUp.TextColor3 = 0, Colors.White
+
+    local sDown = Instance.new("TextButton", sTrack)
+    sDown.Size, sDown.Position = UDim2.new(1, 0, 0, 14), UDim2.new(0, 0, 1, -14)
+    sDown.BackgroundColor3, sDown.Text, sDown.BorderSizePixel = Colors.Main, "v", 0
+    sDown.TextColor3 = Colors.White
+
+    local thumb = Instance.new("TextButton", sTrack)
+    thumb.BackgroundColor3, thumb.BorderSizePixel, thumb.Text = Colors.Main, 0, ""
+
+    -- Arrastar Janela
+    local dragging, dragStart, startPos
+    header.InputBegan:Connect(function(i)
+        if i.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true dragStart = i.Position startPos = main.Position
+            i.Changed:Connect(function() if i.UserInputState == Enum.UserInputState.End then dragging = false end end)
+        end
+    end)
+    UserInputService.InputChanged:Connect(function(i)
+        if dragging and i.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = i.Position - dragStart
+            main.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+
+    -- Logica do Scroll Custom
+    local function UpdateScroll()
+        local canvasSize = layout.AbsoluteContentSize.Y
+        scroll.CanvasSize = UDim2.new(0, 0, 0, canvasSize)
+        local visibleRatio = math.clamp(scroll.AbsoluteWindowSize.Y / canvasSize, 0.1, 1)
+        local trackHeight = sTrack.AbsoluteSize.Y - 28
+        thumb.Size = UDim2.new(1, 0, 0, trackHeight * visibleRatio)
+        
+        local scrollP = scroll.CanvasPosition.Y / math.max(1, canvasSize - scroll.AbsoluteWindowSize.Y)
+        thumb.Position = UDim2.new(0, 0, 0, 14 + (scrollP * (trackHeight - thumb.Size.Y.Offset)))
+    end
+
+    scroll:GetPropertyChangedSignal("CanvasPosition"):Connect(UpdateScroll)
+    layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(UpdateScroll)
+
+    -- Arrastar Barra de Scroll
+    local scrollingThumb = false
+    thumb.MouseButton1Down:Connect(function() scrollingThumb = true end)
+    UserInputService.InputEnded:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseButton1 then scrollingThumb = false end end)
+    
+    RunService.RenderStepped:Connect(function()
+        if scrollingThumb then
+            local mousePos = UserInputService:GetMouseLocation().Y - sTrack.AbsolutePosition.Y - 48
+            local trackHeight = sTrack.AbsoluteSize.Y - 28 - thumb.Size.Y.Offset
+            local perc = math.clamp(mousePos / trackHeight, 0, 1)
+            scroll.CanvasPosition = Vector2.new(0, perc * (scroll.CanvasSize.Y.Offset - scroll.AbsoluteWindowSize.Y))
+        end
+    end)
+
+    sUp.MouseButton1Click:Connect(function() scroll.CanvasPosition -= Vector2.new(0, 20) end)
+    sDown.MouseButton1Click:Connect(function() scroll.CanvasPosition += Vector2.new(0, 20) end)
+    close.MouseButton1Click:Connect(function() sg:Destroy() end)
+
+    local function CreateBase(id, text)
+        local f = Instance.new("Frame", scroll)
+        f.Size, f.BackgroundColor3, f.BorderSizePixel = UDim2.new(1, 0, 0, 24), Colors.Main, 0
+        local l = Instance.new("TextLabel", f)
+        l.Size, l.Position = UDim2.new(1, -10, 1, 0), UDim2.new(0, 5, 0, 0)
+        l.BackgroundTransparency, l.Text, l.TextColor3 = 1, text, Colors.White
+        l.Font, l.TextSize, l.TextXAlignment = Enum.Font.SourceSansBold, 14, Enum.TextXAlignment.Left
+        Lib.Elements[id] = { Frame = f, Label = l }
+        return f
+    end
+
+    function Lib:Toggle(id, text, def, cb)
+        local f = CreateBase(id, text)
+        local b = Instance.new("TextButton", f)
+        b.Size, b.Position = UDim2.new(0, 36, 0, 14), UDim2.new(1, -40, 0.5, -7)
+        b.BackgroundColor3, b.BorderSizePixel, b.Text = Colors.InputBG, 0, ""
+        local t = Instance.new("Frame", b)
+        t.Size, t.BorderSizePixel = UDim2.new(0, 12, 0, 10), 0
+        
+        local state = def
+        local function upd()
+            TweenService:Create(t, TInfo, {Position = state and UDim2.new(1, -14, 0.5, -5) or UDim2.new(0, 2, 0.5, -5), BackgroundColor3 = state and Colors.Green or Colors.Red}):Play()
+            if cb then cb(state) end
+        end
+        b.MouseButton1Click:Connect(function() state = not state upd() end)
+        Lib.Elements[id].Set = function(v) state = v upd() end
+        upd()
+    end
+
+    function Lib:Button(id, text, cb)
+        local f = CreateBase(id, text)
+        local b = Instance.new("TextButton", f)
+        b.Size, b.Position = UDim2.new(0, 36, 0, 14), UDim2.new(1, -40, 0.5, -7)
+        b.BackgroundColor3, b.BorderSizePixel, b.Text = Colors.InputBG, 0, ""
+        local i = Instance.new("Frame", b)
+        i.Size, i.Position, i.BackgroundColor3, i.BorderSizePixel = UDim2.new(0, 14, 0, 8), UDim2.new(0.5, -7, 0.5, -4), Color3.new(0, 0.8, 1), 0
+        b.MouseButton1Click:Connect(cb)
+    end
+
+    function Lib:Dropdown(id, text, options, cb)
+        local f = CreateBase(id, text)
+        f.Size = UDim2.new(1, 0, 0, 24)
+        local b = Instance.new("TextButton", f)
+        b.Size, b.Position = UDim2.new(0, 60, 0, 16), UDim2.new(1, -65, 0.5, -8)
+        b.BackgroundColor3, b.Text, b.TextColor3, b.TextSize = Colors.InputBG, "Select...", Colors.White, 12
+        b.BorderSizePixel, b.Font = 0, Enum.Font.SourceSansBold
+
+        local dropF = Instance.new("Frame", scroll)
+        dropF.Size, dropF.Visible, dropF.BackgroundColor3, dropF.BorderSizePixel = UDim2.new(1, 0, 0, 0), false, Colors.InputBG, 0
+        dropF.AutomaticSize = Enum.AutomaticSize.Y
+        local dList = Instance.new("UIListLayout", dropF)
+        
+        b.MouseButton1Click:Connect(function() dropF.Visible = not dropF.Visible end)
+
+        for _, opt in pairs(options) do
+            local o = Instance.new("TextButton", dropF)
+            o.Size, o.BackgroundColor3, o.Text, o.TextColor3 = UDim2.new(1, 0, 0, 20), Colors.InputBG, "  "..opt.Name, Colors.White
+            o.BorderSizePixel, o.Font, o.TextSize, o.TextXAlignment = 0, Enum.Font.SourceSans, 12, Enum.TextXAlignment.Left
+            
+            if opt.Image then
+                local img = Instance.new("ImageLabel", o)
+                img.Size, img.Position = UDim2.new(0, 14, 0, 14), UDim2.new(1, -18, 0.5, -7)
+                img.BackgroundTransparency, img.Image = 1, opt.Image
+            end
+            
+            o.MouseButton1Click:Connect(function()
+                b.Text = opt.Name
+                dropF.Visible = false
+                cb(opt.Name)
+            end)
+        end
+    end
+
+    return Lib
+end
+
+return Lib
