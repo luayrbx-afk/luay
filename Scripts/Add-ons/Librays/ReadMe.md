@@ -83,14 +83,7 @@ Campos disponíveis
 
 Campo	Descrição
 
-Name	Título da janela
-MainBg	Barra superior + bordas
-SubBg	Fundo interno
-Title	Cor do título
-ScrollBarr	Barra de scroll
-ScrollArrows	Setas do scroll
-BgElements	Fundo dos elementos
-TextsElements	Texto dos elementos
+<img src="https://raw.githubusercontent.com/luayrbx-afk/luay/refs/heads/main/Scripts/Add-ons/Librays/assets/lv_0_20260414204324.png" width="200">
 
 
 Exemplo
