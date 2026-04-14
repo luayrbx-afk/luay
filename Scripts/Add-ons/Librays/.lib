@@ -1,5 +1,5 @@
 --[[
-    v2.3
+    V2.5
 ]]
 
 local TweenService = game:GetService("TweenService")
@@ -37,8 +37,8 @@ function Lib:Window(cfg)
 
     local main = Instance.new("Frame")
     main.Name = "MainWindow"
-    main.Size = UDim2.new(0, 230, 0, 250)
-    main.Position = UDim2.new(0.5, -115, 0.5, -125)
+    main.Size = UDim2.new(0, 230, 0, 260)
+    main.Position = UDim2.new(0.5, -115, 0.5, -130)
     main.BackgroundColor3 = Theme.MainBg
     main.BorderSizePixel = 0
     main.Parent = sg
@@ -315,6 +315,29 @@ function Lib:Window(cfg)
         UserInputService.InputChanged:Connect(function(i) if active and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then move() end end)
     end
 
+    -- NOVO: Textbox Individual (Campo Único)
+    function Lib:Textbox(id, text, placeholder, cb)
+        local f = CreateRow(id, text)
+        local b = Instance.new("TextBox", f)
+        b.Size = UDim2.new(0, 70, 0, 16)
+        b.Position = UDim2.new(1, -75, 0.5, -8)
+        b.BackgroundColor3 = Theme.InputBG
+        b.BorderSizePixel = 0
+        b.PlaceholderText = placeholder or "Digite..."
+        b.Text = ""
+        b.TextColor3 = Theme.TextsElements
+        b.Font = Enum.Font.SourceSansBold
+        b.TextSize = 11
+        b.ClipsDescendants = true
+        
+        b.FocusLost:Connect(function(enter)
+            cb(b.Text, enter)
+        end)
+        
+        Lib.Elements[id].Set = function(v) b.Text = v end
+        Lib.Elements[id].Get = function() return b.Text end
+    end
+
     function Lib:TripleTextbox(id, titleText, p1, p2, p3, cb)
         local f = Instance.new("Frame", scroll)
         f.Size = UDim2.new(1, 0, 0, 45)
@@ -347,6 +370,7 @@ function Lib:Window(cfg)
             b.TextColor3 = Theme.TextsElements
             b.Font = Enum.Font.SourceSansBold
             b.TextSize = 11
+            b.ClipsDescendants = true
             return b
         end
 
