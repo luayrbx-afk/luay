@@ -1,10 +1,21 @@
+--[[
+    v2.3
+]]
+
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local TextService = game:GetService("TextService")
 
-local Lib = { Elements = {} }
-local TInfo = TweenInfo.new(0.15, Enum.EasingStyle.Quad)
+local Lib = { Elements = {}, Connections = {} }
+local TInfo = TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+
+-- Funções Utilitárias Internas
+local function CreateTween(obj, props)
+    local tween = TweenService:Create(obj, TInfo, props)
+    tween:Play()
+    return tween
+end
 
 function Lib:Window(cfg)
     local Theme = {
@@ -15,62 +26,124 @@ function Lib:Window(cfg)
         ScrollArrows = cfg.ScrollArrows or Color3.fromRGB(251, 181, 84),
         BgElements = cfg.BgElements or Color3.fromRGB(251, 181, 84),
         TextsElements = cfg.TextsElements or Color3.fromRGB(255, 255, 255),
-        InputBG = Color3.fromRGB(242, 203, 137)
+        InputBG = Color3.fromRGB(242, 203, 137),
+        Accent = Color3.fromRGB(72, 224, 240)
     }
 
-    local sg = Instance.new("ScreenGui", game:GetService("CoreGui") or game:GetService("Players").LocalPlayer.PlayerGui)
+    local sg = Instance.new("ScreenGui")
     sg.Name = "windowsv34_" .. math.random(1,999)
     sg.ResetOnSpawn = false
+    sg.Parent = game:GetService("CoreGui") or game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
 
-    local main = Instance.new("Frame", sg)
-    main.Size, main.Position = UDim2.new(0, 230, 0, 220), UDim2.new(0.5, -115, 0.5, -110)
-    main.BackgroundColor3, main.BorderSizePixel = Theme.MainBg, 0
+    local main = Instance.new("Frame")
+    main.Name = "MainWindow"
+    main.Size = UDim2.new(0, 230, 0, 250)
+    main.Position = UDim2.new(0.5, -115, 0.5, -125)
+    main.BackgroundColor3 = Theme.MainBg
+    main.BorderSizePixel = 0
+    main.Parent = sg
 
-    local header = Instance.new("Frame", main)
-    header.Size, header.BackgroundColor3, header.BorderSizePixel = UDim2.new(1, 0, 0, 24), Theme.MainBg, 0
+    local header = Instance.new("Frame")
+    header.Name = "Header"
+    header.Size = UDim2.new(1, 0, 0, 24)
+    header.BackgroundColor3 = Theme.MainBg
+    header.BorderSizePixel = 0
+    header.Parent = main
 
-    local tTitle = Instance.new("TextLabel", header)
-    tTitle.Size, tTitle.Position = UDim2.new(1, -50, 1, 0), UDim2.new(0, 5, 0, 0)
-    tTitle.BackgroundTransparency, tTitle.Text, tTitle.TextColor3 = 1, cfg.Name or "Windows", Theme.Title
-    tTitle.Font, tTitle.TextSize, tTitle.TextXAlignment = Enum.Font.SourceSansBold, 14, Enum.TextXAlignment.Left
+    local tTitle = Instance.new("TextLabel")
+    tTitle.Size = UDim2.new(1, -50, 1, 0)
+    tTitle.Position = UDim2.new(0, 5, 0, 0)
+    tTitle.BackgroundTransparency = 1
+    tTitle.Text = cfg.Name or "Windows"
+    tTitle.TextColor3 = Theme.Title
+    tTitle.Font = Enum.Font.SourceSansBold
+    tTitle.TextSize = 14
+    tTitle.TextXAlignment = Enum.TextXAlignment.Left
+    tTitle.Parent = header
 
-    local close = Instance.new("TextButton", header)
-    close.Size, close.Position = UDim2.new(0, 22, 0, 22), UDim2.new(1, -22, 0, 1)
-    close.BackgroundColor3, close.Text, close.TextColor3, close.BorderSizePixel = Color3.fromRGB(244, 67, 54), "X", Color3.new(1,1,1), 0
+    local close = Instance.new("TextButton")
+    close.Size = UDim2.new(0, 22, 0, 22)
+    close.Position = UDim2.new(1, -22, 0, 1)
+    close.BackgroundColor3 = Color3.fromRGB(244, 67, 54)
+    close.Text = "X"
+    close.TextColor3 = Color3.new(1,1,1)
+    close.BorderSizePixel = 0
+    close.Parent = header
 
-    local min = Instance.new("TextButton", header)
-    min.Size, min.Position = UDim2.new(0, 22, 0, 22), UDim2.new(1, -45, 0, 1)
-    min.BackgroundColor3, min.Text, min.TextColor3, min.BorderSizePixel = Color3.fromRGB(242, 218, 169), "-", Color3.new(1,1,1), 0
+    local min = Instance.new("TextButton")
+    min.Size = UDim2.new(0, 22, 0, 22)
+    min.Position = UDim2.new(1, -45, 0, 1)
+    min.BackgroundColor3 = Color3.fromRGB(242, 218, 169)
+    min.Text = "-"
+    min.TextColor3 = Color3.new(1,1,1)
+    min.BorderSizePixel = 0
+    min.Parent = header
 
-    local body = Instance.new("Frame", main)
-    body.Size, body.Position = UDim2.new(1, -6, 1, -30), UDim2.new(0, 3, 0, 27)
-    body.BackgroundColor3, body.BorderSizePixel = Theme.SubBg, 0
+    local body = Instance.new("Frame")
+    body.Name = "Body"
+    body.Size = UDim2.new(1, -6, 1, -30)
+    body.Position = UDim2.new(0, 3, 0, 27)
+    body.BackgroundColor3 = Theme.SubBg
+    body.BorderSizePixel = 0
     body.ClipsDescendants = true
+    body.Parent = main
 
-    local scroll = Instance.new("ScrollingFrame", body)
-    scroll.Size, scroll.Position = UDim2.new(1, -18, 1, -4), UDim2.new(0, 2, 0, 2)
-    scroll.BackgroundTransparency, scroll.BorderSizePixel, scroll.ScrollBarThickness = 1, 0, 0
+    local scroll = Instance.new("ScrollingFrame")
+    scroll.Size = UDim2.new(1, -18, 1, -4)
+    scroll.Position = UDim2.new(0, 2, 0, 2)
+    scroll.BackgroundTransparency = 1
+    scroll.BorderSizePixel = 0
+    scroll.ScrollBarThickness = 0
+    scroll.Parent = body
 
-    local layout = Instance.new("UIListLayout", scroll)
-    layout.Padding, layout.SortOrder = UDim.new(0, 4), Enum.SortOrder.LayoutOrder
+    local layout = Instance.new("UIListLayout")
+    layout.Padding = UDim.new(0, 4)
+    layout.SortOrder = Enum.SortOrder.LayoutOrder
+    layout.Parent = scroll
 
-    local sTrack = Instance.new("Frame", body)
-    sTrack.Size, sTrack.Position = UDim2.new(0, 14, 1, -4), UDim2.new(1, -16, 0, 2)
-    sTrack.BackgroundColor3, sTrack.BorderSizePixel = Color3.fromRGB(210, 210, 210), 0
+    local sTrack = Instance.new("Frame")
+    sTrack.Size = UDim2.new(0, 14, 1, -4)
+    sTrack.Position = UDim2.new(1, -16, 0, 2)
+    sTrack.BackgroundColor3 = Color3.fromRGB(210, 210, 210)
+    sTrack.BorderSizePixel = 0
+    sTrack.Parent = body
 
-    local sUp = Instance.new("TextButton", sTrack)
-    sUp.Size, sUp.BackgroundColor3, sUp.Text, sUp.TextColor3 = UDim2.new(1, 0, 0, 14), Theme.ScrollArrows, "^", Color3.new(1,1,1)
-    sUp.BorderSizePixel, sUp.Font = 0, Enum.Font.SourceSansBold
+    local sUp = Instance.new("TextButton")
+    sUp.Size = UDim2.new(1, 0, 0, 14)
+    sUp.BackgroundColor3 = Theme.ScrollArrows
+    sUp.Text = "^"
+    sUp.TextColor3 = Color3.new(1,1,1)
+    sUp.BorderSizePixel = 0
+    sUp.Font = Enum.Font.SourceSansBold
+    sUp.Parent = sTrack
 
-    local sDown = Instance.new("TextButton", sTrack)
-    sDown.Size, sDown.Position = UDim2.new(1, 0, 0, 14), UDim2.new(0, 0, 1, -14)
-    sDown.BackgroundColor3, sDown.Text, sDown.TextColor3 = Theme.ScrollArrows, "v", Color3.new(1,1,1)
-    sDown.BorderSizePixel, sDown.Font = 0, Enum.Font.SourceSansBold
+    local sDown = Instance.new("TextButton")
+    sDown.Size = UDim2.new(1, 0, 0, 14)
+    sDown.Position = UDim2.new(0, 0, 1, -14)
+    sDown.BackgroundColor3 = Theme.ScrollArrows
+    sDown.Text = "v"
+    sDown.TextColor3 = Color3.new(1,1,1)
+    sDown.BorderSizePixel = 0
+    sDown.Font = Enum.Font.SourceSansBold
+    sDown.Parent = sTrack
 
-    local thumb = Instance.new("TextButton", sTrack)
-    thumb.BackgroundColor3, thumb.BorderSizePixel, thumb.Text = Theme.ScrollBarr, 0, ""
+    local thumb = Instance.new("TextButton")
+    thumb.BackgroundColor3 = Theme.ScrollBarr
+    thumb.BorderSizePixel = 0
+    thumb.Text = ""
+    thumb.Parent = sTrack
 
-    -- Arraste Anti-Bug (Multi-touch friendly)
+    -- Lógica de Minimizar Suave
+    local isMinimized = false
+    local originalHeight = main.Size.Y.Offset
+    min.MouseButton1Click:Connect(function()
+        isMinimized = not isMinimized
+        local targetSize = isMinimized and UDim2.new(0, 230, 0, 24) or UDim2.new(0, 230, 0, originalHeight)
+        CreateTween(main, {Size = targetSize})
+        body.Visible = not isMinimized
+    end)
+
+    -- Arraste Robusto (Multi-touch Friendly)
     local dragging, dragInput, startPos, dragStart
     header.InputBegan:Connect(function(input)
         if not dragging and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
@@ -78,6 +151,12 @@ function Lib:Window(cfg)
             dragStart = input.Position
             startPos = main.Position
             dragInput = input
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                    dragInput = nil
+                end
+            end)
         end
     end)
     UserInputService.InputChanged:Connect(function(input)
@@ -86,109 +165,250 @@ function Lib:Window(cfg)
             main.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
         end
     end)
-    UserInputService.InputEnded:Connect(function(input)
-        if input == dragInput then dragging = false dragInput = nil end
-    end)
 
-    -- Scroll Logic
-    local function UpdScroll()
-        local cY = layout.AbsoluteContentSize.Y
-        scroll.CanvasSize = UDim2.new(0,0,0,cY)
-        local ratio = math.clamp(scroll.AbsoluteWindowSize.Y / cY, 0.1, 1)
-        local tH = sTrack.AbsoluteSize.Y - 28
-        thumb.Size = UDim2.new(1,0,0, math.max(15, tH * ratio))
-        local p = scroll.CanvasPosition.Y / math.max(1, cY - scroll.AbsoluteWindowSize.Y)
-        thumb.Position = UDim2.new(0,0,0, 14 + (p * (tH - thumb.Size.Y.Offset)))
+    -- Scroll Dinâmico
+    local function UpdateScrollUI()
+        local canvasY = layout.AbsoluteContentSize.Y
+        scroll.CanvasSize = UDim2.new(0, 0, 0, canvasY)
+        local viewRatio = math.clamp(scroll.AbsoluteWindowSize.Y / canvasY, 0.1, 1)
+        local trackHeight = sTrack.AbsoluteSize.Y - 28
+        thumb.Size = UDim2.new(1, 0, 0, math.max(15, trackHeight * viewRatio))
+        local scrollPerc = scroll.CanvasPosition.Y / math.max(1, canvasY - scroll.AbsoluteWindowSize.Y)
+        thumb.Position = UDim2.new(0, 0, 0, 14 + (scrollPerc * (trackHeight - thumb.Size.Y.Offset)))
     end
-    scroll:GetPropertyChangedSignal("CanvasPosition"):Connect(UpdScroll)
-    layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(UpdScroll)
+    scroll:GetPropertyChangedSignal("CanvasPosition"):Connect(UpdateScrollUI)
+    layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(UpdateScrollUI)
 
-    local sThumbDrag = false
-    thumb.InputBegan:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then sThumbDrag = true end end)
-    UserInputService.InputEnded:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then sThumbDrag = false end end)
+    local isThumbDragging = false
+    thumb.InputBegan:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then isThumbDragging = true end end)
+    UserInputService.InputEnded:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then isThumbDragging = false end end)
+    
     RunService.RenderStepped:Connect(function()
-        if sThumbDrag then
-            local mY = (UserInputService:GetMouseLocation().Y - 36) - sTrack.AbsolutePosition.Y
-            local tH = sTrack.AbsoluteSize.Y - 28 - thumb.Size.Y.Offset
-            local p = math.clamp((mY - 14) / tH, 0, 1)
-            scroll.CanvasPosition = Vector2.new(0, p * (scroll.CanvasSize.Y.Offset - scroll.AbsoluteWindowSize.Y))
+        if isThumbDragging then
+            local mouseLoc = (UserInputService:GetMouseLocation().Y - 36) - sTrack.AbsolutePosition.Y
+            local trackH = sTrack.AbsoluteSize.Y - 28 - thumb.Size.Y.Offset
+            local perc = math.clamp((mouseLoc - 14) / trackH, 0, 1)
+            scroll.CanvasPosition = Vector2.new(0, perc * (scroll.CanvasSize.Y.Offset - scroll.AbsoluteWindowSize.Y))
         end
     end)
-    
+
     sUp.MouseButton1Click:Connect(function() scroll.CanvasPosition -= Vector2.new(0, 30) end)
     sDown.MouseButton1Click:Connect(function() scroll.CanvasPosition += Vector2.new(0, 30) end)
     close.MouseButton1Click:Connect(function() sg:Destroy() end)
 
-    local function CreateBase(id, text)
+    -- Element Factory
+    local function CreateRow(id, text)
         local f = Instance.new("Frame", scroll)
-        f.Size, f.BackgroundColor3, f.BorderSizePixel = UDim2.new(1, 0, 0, 24), Theme.BgElements, 0
+        f.Size = UDim2.new(1, 0, 0, 24)
+        f.BackgroundColor3 = Theme.BgElements
+        f.BorderSizePixel = 0
         local l = Instance.new("TextLabel", f)
-        l.Size, l.Position = UDim2.new(1, -10, 1, 0), UDim2.new(0, 5, 0, 0)
-        l.BackgroundTransparency, l.Text, l.TextColor3 = 1, text, Theme.TextsElements
-        l.Font, l.TextSize, l.TextXAlignment = Enum.Font.SourceSansBold, 14, Enum.TextXAlignment.Left
+        l.Size = UDim2.new(1, -10, 1, 0)
+        l.Position = UDim2.new(0, 5, 0, 0)
+        l.BackgroundTransparency = 1
+        l.Text = text
+        l.TextColor3 = Theme.TextsElements
+        l.Font = Enum.Font.SourceSansBold
+        l.TextSize = 14
+        l.TextXAlignment = Enum.TextXAlignment.Left
         Lib.Elements[id] = { Frame = f, Label = l }
         return f
     end
 
+    -- [COMPONENTES]
+    
+    function Lib:Label(id, text)
+        local f = Instance.new("Frame", scroll)
+        f.BackgroundColor3 = Theme.BgElements
+        f.BorderSizePixel = 0
+        local l = Instance.new("TextLabel", f)
+        l.Size = UDim2.new(1, -10, 1, -4)
+        l.Position = UDim2.new(0, 5, 0, 2)
+        l.BackgroundTransparency = 1
+        l.Text = text
+        l.TextColor3 = Theme.TextsElements
+        l.Font = Enum.Font.SourceSansBold
+        l.TextSize = 14
+        l.TextXAlignment = Enum.TextXAlignment.Left
+        l.TextWrapped = true
+        
+        local function autoSize()
+            local size = TextService:GetTextSize(l.Text, l.TextSize, l.Font, Vector2.new(200, 9999))
+            f.Size = UDim2.new(1, 0, 0, size.Y + 8)
+        end
+        l:GetPropertyChangedSignal("Text"):Connect(autoSize)
+        autoSize()
+        Lib.Elements[id] = { Set = function(v) l.Text = v end }
+    end
+
     function Lib:Button(id, text, cb)
-        local f = CreateBase(id, text)
+        local f = CreateRow(id, text)
         local b = Instance.new("TextButton", f)
-        b.Size, b.Position, b.BackgroundColor3, b.Text = UDim2.new(0, 36, 0, 14), UDim2.new(1, -40, 0.5, -7), Theme.InputBG, ""
+        b.Size = UDim2.new(0, 36, 0, 14)
+        b.Position = UDim2.new(1, -40, 0.5, -7)
+        b.BackgroundColor3 = Theme.InputBG
+        b.Text = ""
         b.BorderSizePixel = 0
         local i = Instance.new("Frame", b)
-        i.Size, i.Position, i.BackgroundColor3, i.BorderSizePixel = UDim2.new(0, 14, 0, 8), UDim2.new(0.5, -7, 0.5, -4), Color3.new(0,0.8,1), 0
+        i.Size = UDim2.new(0, 14, 0, 8)
+        i.Position = UDim2.new(0.5, -7, 0.5, -4)
+        i.BackgroundColor3 = Theme.Accent
+        i.BorderSizePixel = 0
         b.MouseButton1Click:Connect(cb)
     end
 
     function Lib:Toggle(id, text, def, cb)
-        local f = CreateBase(id, text)
+        local f = CreateRow(id, text)
         local b = Instance.new("TextButton", f)
-        b.Size, b.Position, b.BackgroundColor3, b.Text = UDim2.new(0, 36, 0, 14), UDim2.new(1, -40, 0.5, -7), Theme.InputBG, ""
+        b.Size = UDim2.new(0, 36, 0, 14)
+        b.Position = UDim2.new(1, -40, 0.5, -7)
+        b.BackgroundColor3 = Theme.InputBG
+        b.Text = ""
         b.BorderSizePixel = 0
         local t = Instance.new("Frame", b)
-        t.Size, t.BorderSizePixel = UDim2.new(0, 12, 0, 10), 0
+        t.Size = UDim2.new(0, 12, 0, 10)
+        t.BorderSizePixel = 0
         local state = def
-        local function upd()
-            TweenService:Create(t, TInfo, {Position = state and UDim2.new(1, -14, 0.5, -5) or UDim2.new(0, 2, 0.5, -5), BackgroundColor3 = state and Color3.new(0,1,0) or Color3.new(1,0,0)}):Play()
+        local function refresh()
+            CreateTween(t, {
+                Position = state and UDim2.new(1, -14, 0.5, -5) or UDim2.new(0, 2, 0.5, -5),
+                BackgroundColor3 = state and Color3.new(0.2, 1, 0.2) or Color3.new(1, 0.2, 0.2)
+            })
             cb(state)
         end
-        b.MouseButton1Click:Connect(function() state = not state upd() end)
-        Lib.Elements[id].Set = function(v) state = v upd() end
+        b.MouseButton1Click:Connect(function() state = not state refresh() end)
+        Lib.Elements[id].Set = function(v) state = v refresh() end
         Lib.Elements[id].Get = function() return state end
-        upd()
+        refresh()
+    end
+
+    function Lib:Slider(id, text, min, max, def, cb)
+        local f = CreateRow(id, text)
+        local s = Instance.new("TextButton", f)
+        s.Size = UDim2.new(0, 70, 0, 14)
+        s.Position = UDim2.new(1, -75, 0.5, -7)
+        s.BackgroundColor3 = Theme.InputBG
+        s.Text = ""
+        s.BorderSizePixel = 0
+        local fill = Instance.new("Frame", s)
+        fill.Size = UDim2.new((def-min)/(max-min), 0, 1, 0)
+        fill.BackgroundColor3 = Theme.Accent
+        fill.BorderSizePixel = 0
+        local valL = Instance.new("TextLabel", s)
+        valL.Size = UDim2.new(1, 0, 1, 0)
+        valL.BackgroundTransparency = 1
+        valL.Text = tostring(def)
+        valL.TextColor3 = Theme.TextsElements
+        valL.Font = Enum.Font.SourceSansBold
+        valL.TextSize = 10
+        
+        local active = false
+        local function move()
+            local perc = math.clamp((UserInputService:GetMouseLocation().X - s.AbsolutePosition.X) / s.AbsoluteSize.X, 0, 1)
+            local res = math.floor(min + (max-min)*perc)
+            fill.Size = UDim2.new(perc, 0, 1, 0)
+            valL.Text = tostring(res)
+            cb(res)
+        end
+        s.InputBegan:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then active = true move() end end)
+        UserInputService.InputEnded:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then active = false end end)
+        UserInputService.InputChanged:Connect(function(i) if active and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then move() end end)
+    end
+
+    function Lib:TripleTextbox(id, titleText, p1, p2, p3, cb)
+        local f = Instance.new("Frame", scroll)
+        f.Size = UDim2.new(1, 0, 0, 45)
+        f.BackgroundColor3 = Theme.BgElements
+        f.BorderSizePixel = 0
+        
+        local l = Instance.new("TextLabel", f)
+        l.Size = UDim2.new(1, -5, 0, 18)
+        l.Position = UDim2.new(0, 5, 0, 2)
+        l.BackgroundTransparency = 1
+        l.Text = titleText
+        l.TextColor3 = Theme.TextsElements
+        l.Font = Enum.Font.SourceSansBold
+        l.TextSize = 13
+        l.TextXAlignment = Enum.TextXAlignment.Left
+
+        local boxCont = Instance.new("Frame", f)
+        boxCont.Size = UDim2.new(1, -10, 0, 20)
+        boxCont.Position = UDim2.new(0, 5, 0, 20)
+        boxCont.BackgroundTransparency = 1
+        
+        local function createBox(placeholder, pos)
+            local b = Instance.new("TextBox", boxCont)
+            b.Size = UDim2.new(0.31, 0, 1, 0)
+            b.Position = UDim2.new((pos-1)*0.34, 0, 0, 0)
+            b.BackgroundColor3 = Theme.InputBG
+            b.BorderSizePixel = 0
+            b.PlaceholderText = placeholder
+            b.Text = ""
+            b.TextColor3 = Theme.TextsElements
+            b.Font = Enum.Font.SourceSansBold
+            b.TextSize = 11
+            return b
+        end
+
+        local b1, b2, b3 = createBox(p1, 1), createBox(p2, 2), createBox(p3, 3)
+        local function call() cb(b1.Text, b2.Text, b3.Text) end
+        b1.FocusLost:Connect(call) b2.FocusLost:Connect(call) b3.FocusLost:Connect(call)
+        Lib.Elements[id] = { Set = function(v1,v2,v3) b1.Text=v1 b2.Text=v2 b3.Text=v3 end }
     end
 
     function Lib:Dropdown(id, text, multi, options, cb)
-        local f = CreateBase(id, text)
+        local f = CreateRow(id, text)
         local b = Instance.new("TextButton", f)
-        b.Size, b.Position, b.BackgroundColor3 = UDim2.new(0, 70, 0, 16), UDim2.new(1, -75, 0.5, -8), Theme.InputBG
-        b.Text, b.TextColor3, b.Font, b.TextSize, b.BorderSizePixel = "Select", Color3.new(1,1,1), Enum.Font.SourceSansBold, 12, 0
+        b.Size = UDim2.new(0, 70, 0, 16)
+        b.Position = UDim2.new(1, -75, 0.5, -8)
+        b.BackgroundColor3 = Theme.InputBG
+        b.Text = "Select"
+        b.TextColor3 = Theme.TextsElements
+        b.Font = Enum.Font.SourceSansBold
+        b.TextSize = 11
+        b.BorderSizePixel = 0
         
         local dF = Instance.new("Frame", scroll)
-        dF.Size, dF.BackgroundColor3, dF.BorderSizePixel, dF.Visible = UDim2.new(1, 0, 0, 0), Theme.InputBG, 0, false
+        dF.Size = UDim2.new(1, 0, 0, 0)
+        dF.BackgroundColor3 = Theme.InputBG
+        dF.BorderSizePixel = 0
+        dF.Visible = false
         dF.AutomaticSize = Enum.AutomaticSize.Y
         Instance.new("UIListLayout", dF)
 
-        local selected = {}
+        local sel = {}
         b.MouseButton1Click:Connect(function() dF.Visible = not dF.Visible end)
 
         for _, opt in pairs(options) do
             local o = Instance.new("TextButton", dF)
-            o.Size, o.BackgroundColor3, o.BorderSizePixel = UDim2.new(1, 0, 0, 20), Theme.InputBG, 0
-            o.Text, o.TextColor3, o.Font, o.TextSize, o.TextXAlignment = "  "..opt.Name, Color3.new(1,1,1), Enum.Font.SourceSans, 12, Enum.TextXAlignment.Left
+            o.Size = UDim2.new(1, 0, 0, 20)
+            o.BackgroundColor3 = Theme.InputBG
+            o.BorderSizePixel = 0
+            o.Text = "  " .. opt.Name
+            o.TextColor3 = Theme.TextsElements
+            o.Font = Enum.Font.SourceSans
+            o.TextSize = 12
+            o.TextXAlignment = Enum.TextXAlignment.Left
+            
             if opt.Image then
                 local img = Instance.new("ImageLabel", o)
-                img.Size, img.Position, img.Image, img.BackgroundTransparency = UDim2.new(0,14,0,14), UDim2.new(1,-18,0.5,-7), opt.Image, 1
+                img.Size = UDim2.new(0,14,0,14)
+                img.Position = UDim2.new(1,-18,0.5,-7)
+                img.BackgroundTransparency = 1
+                img.Image = opt.Image
             end
+            
             o.MouseButton1Click:Connect(function()
                 if multi then
-                    selected[opt.Name] = not selected[opt.Name]
-                    o.TextColor3 = selected[opt.Name] and Color3.new(0,1,0) or Color3.new(1,1,1)
-                    local l = {} for k,v in pairs(selected) do if v then table.insert(l, k) end end
-                    b.Text = #l > 0 and table.concat(l, ", "):sub(1,8)..".." or "Select"
-                    cb(l)
+                    sel[opt.Name] = not sel[opt.Name]
+                    o.TextColor3 = sel[opt.Name] and Color3.new(0.2, 1, 0.2) or Theme.TextsElements
+                    local list = {} for k,v in pairs(sel) do if v then table.insert(list, k) end end
+                    b.Text = #list > 0 and table.concat(list, ", "):sub(1,10)..".." or "Select"
+                    cb(list)
                 else
-                    b.Text = opt.Name dF.Visible = false cb(opt.Name)
+                    b.Text = opt.Name
+                    dF.Visible = false
+                    cb(opt.Name)
                 end
             end)
         end
