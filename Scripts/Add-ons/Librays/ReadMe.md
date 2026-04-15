@@ -1,11 +1,9 @@
 # 🪟 WindowsV34 Ultimate Lib
 
-Biblioteca de UI estilo Windows XP Pastel para Roblox
+qualidades; responsiva, pequena, simples, rápida
 
-Uma lib de interface leve, rápida e totalmente customizável, feita pra quem quer UI bonita sem matar o FPS.
-Foco total em mobile + performance + nostalgia Windows XP pastel.
-
-
+### by joaopk(__open source__)
+- English version of the reademe [ReadMe.md](https://exemple.com)
 ---
 
 ### 🚀 Sumário
@@ -43,31 +41,31 @@ __Exemplo:__
 
 ---
 
-✨ Características
+# ✨ Características
 
-🎨 Visual Pastel Customizável
-Controle total de cores (janela, textos, elementos, scroll, etc)
+### 🎨 Visual Pastel Customizável
+Controle de cores (janela, textos, elementos, scroll, etc)
 
-📱 100% Mobile Friendly
-Sistema de toque inteligente (sem bug de arrastar)
+### 📱 100% Mobile Friendly
+responsabilidade em todos os componentes e funções
 
-🎬 Animações Suaves
+### 🎬 Animações Suaves
 Transições usando TweenService
 
-📜 Auto Scroll Inteligente
+### 📜 Auto Scroll Inteligente
 Scroll adapta automaticamente ao conteúdo
 
-⚡ Alta Performance
+### ⚡ Alta Performance
 Código leve e responsivo
 
-🧠 Sistema de IDs poderoso
+### 🧠 Sistema de IDs poderoso
 Controle total dos elementos via código
 
 
 
 ---
 
-📦 Instalação
+# 📦 Instalação
 ```lua
 local LibURL = "https://raw.githubusercontent.com/luayrbx-afk/luay/refs/heads/main/Scripts/Add-ons/Librays/.lib"
 local Lib = loadstring(game:HttpGet(LibURL))()
@@ -75,18 +73,16 @@ local Lib = loadstring(game:HttpGet(LibURL))()
 
 ---
 
-🎨 Temas da Janela
+### 🎨 Temas da Janela
 
 Você pode customizar tudo. Se não definir, usa padrão pastel laranja.
 
-Campos disponíveis
-
-Campo	Descrição
+- Campos disponíveis
 
 <img src="https://raw.githubusercontent.com/luayrbx-afk/luay/refs/heads/main/Scripts/Add-ons/Librays/assets/lv_0_20260414204324.png" width="200">
 
 
-Exemplo
+### Exemplo
 ```lua
 local Win = Lib:Window({
     Name = "Meu Script Pro",
@@ -100,16 +96,16 @@ local Win = Lib:Window({
 
 ---
 
-🧩 Componentes
+# 🧩 Componentes
 
-🏷 Label
+### 🏷 Label
 ```lua
 Lib:Label("id_label", "Texto automático com quebra de linha.")
 ```
 
 ---
 
-🔘 Button
+### 🔘 Button
 ```lua
 Lib:Button("btn_id", "Executar", function()
     print("clicou")
@@ -118,7 +114,7 @@ end)
 
 ---
 
-🔁 Toggle
+### 🔁 Toggle
 ```lua
 Lib:Toggle("farm_id", "Auto Farm", false, function(state)
     print(state)
@@ -127,7 +123,7 @@ end)
 
 ---
 
-🎚 Slider
+### 🎚 Slider
 ```lua
 Lib:Slider("ws_id", "Velocidade", 16, 100, 16, function(value)
     game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = value
@@ -136,7 +132,7 @@ end)
 
 ---
 
-⌨ Textbox
+### ⌨ Textbox
 ```lua
 Lib:Textbox("name_id", "Nome", "Ex: Rex", function(text, focusLost)
     if focusLost then
@@ -147,7 +143,7 @@ end)
 
 ---
 
-🔢 Triple Textbox
+### 🔢 Triple Textbox
 ```lua
 Lib:TripleTextbox("coord_id", "X/Y/Z", "X", "Y", "Z", function(x, y, z)
     print(x, y, z)
@@ -156,22 +152,22 @@ end)
 
 ---
 
-📂 Dropdowns
+### 📂 Dropdowns
 
-Seleção única
+__Seleção única__
 ```lua
 Lib:Dropdown("d1", "Mapa", false, {
     {Name = "Spawn"},
     {Name = "Arena"}
 }, function(sel) end)
 ```
-Com imagem
+__Com imagem__
 ```lua
 Lib:Dropdown("d2", "Arma", false, {
     {Name = "Katana", Image = "rbxassetid://ID"}
 }, function(sel) end)
 ```
-Multi seleção
+__Multi seleção__
 ```lua
 Lib:Dropdown("d3", "Buffs", true, {
     {Name = "Vida"},
@@ -182,9 +178,9 @@ Lib:Dropdown("d3", "Buffs", true, {
 
 ---
 
-🛠 Sistema de IDs
+# 🛠 Sistema de IDs
 
-Cada elemento fica em:
+- Cada elemento fica em:
 ```lua
 Lib.Elements[id]
 
@@ -200,29 +196,21 @@ local value = Lib.Elements["farm_id"].Get()
 
 ---
 
-🖱 Drag & Minimizar
+# 🖱 Minimizar
 
-🧲 Drag Inteligente
+# 🧲 Drag responsivo
 
-Não buga em mobile
-
-Ignora toques secundários
-
-Movimento suave
+- Movimento suave
 
 
-➖ Minimizar
+# ➖ Minimizar
 
-Animação com Tween
-
-Esconde conteúdo
-
-Mantém header visível
+- Animação com Tween(suave)
 
 
 --
 
-🌟 Exemplo Completo
+# ExempleUseLib
 ```lua
 local Lib = loadstring(game:HttpGet("https://raw.githubusercontent.com/luayrbx-afk/luay/refs/heads/main/Scripts/Add-ons/Librays/.lib"))()
 
