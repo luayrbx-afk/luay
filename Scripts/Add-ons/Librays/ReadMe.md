@@ -79,7 +79,7 @@ Você pode customizar tudo. Se não definir, usa padrão pastel laranja.
 
 - Campos disponíveis
 
-<img src="https://raw.githubusercontent.com/luayrbx-afk/luay/refs/heads/main/Scripts/Add-ons/Librays/assets/lv_0_20260414204324.png" width="200">
+<img src="https://raw.githubusercontent.com/luayrbx-afk/luay/refs/heads/main/Scripts/Add-ons/Librays/assets/lv_0_20260414204907.png" width="200">
 
 
 ### Exemplo
